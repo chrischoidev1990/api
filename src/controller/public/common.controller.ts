@@ -1,5 +1,3 @@
-
-
 import {
   Controller,
   Post,
@@ -14,7 +12,7 @@ import {
   ApiResponse,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { FileService } from '../../service/file.service';
+import { FileService } from '../../service/common/file.service';
 import { PresignedUrlDto } from './dto/presigned-url.dto';
 
 @ApiTags('Common')
@@ -31,14 +29,13 @@ export class CommonController {
     return result;
   }
 
-
   @Post('presigned-url')
   @ApiOperation({ summary: 'S3 presigned URL 발급' })
   @ApiResponse({ status: 201, description: 'Presigned URL 반환' })
   async getPresignedUrl(@Body() body: PresignedUrlDto) {
-  const { key, expiresIn = 60 } = body;
-  // Only encode key for S3, not the whole URL
-  const url = await this.fileService.getPresignedUrl(key, expiresIn);
-  return { key, url };
+    const { key, expiresIn = 60 } = body;
+    // Only encode key for S3, not the whole URL
+    const url = await this.fileService.getPresignedUrl(key, expiresIn);
+    return { key, url };
   }
 }

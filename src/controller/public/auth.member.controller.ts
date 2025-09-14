@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { MemberAuthService } from '../../service/member.auth.service';
+import { MemberAuthService } from '../../service/auth/member.auth.service';
 import { MemberSignupDto } from './dto/member-signup.dto';
 import { MemberLoginDto } from './dto/member-login.dto';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
@@ -17,7 +17,12 @@ export class AuthMemberController {
   @ApiResponse({ status: 400, description: '유효성 검사 실패' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async signup(@Body() dto: MemberSignupDto) {
-    return this.memberAuthService.signup(dto.email, dto.password, dto.name, dto.phone);
+    return this.memberAuthService.signup(
+      dto.email,
+      dto.password,
+      dto.name,
+      dto.phone,
+    );
   }
 
   @Post('login')
@@ -27,7 +32,10 @@ export class AuthMemberController {
   @ApiResponse({ status: 401, description: '인증 실패' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async login(@Body() dto: MemberLoginDto) {
-    const member = await this.memberAuthService.validateUser(dto.email, dto.password);
+    const member = await this.memberAuthService.validateUser(
+      dto.email,
+      dto.password,
+    );
     if (!member) throw new UnauthorizedException('Invalid credentials');
     return this.memberAuthService.login(member);
   }

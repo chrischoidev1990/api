@@ -1,6 +1,13 @@
-import { Controller, Post, Body, UnauthorizedException, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { AdminAuthService } from '../../service/admin.auth.service';
+import { AdminAuthService } from '../../service/auth/admin.auth.service';
 import { AdminSignupDto } from './dto/admin-signup.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
 
@@ -16,7 +23,12 @@ export class AuthAdminController {
   @ApiResponse({ status: 400, description: '유효성 검사 실패' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async signup(@Body() dto: AdminSignupDto) {
-    return this.adminAuthService.signup(dto.email, dto.password, dto.name, dto.phone);
+    return this.adminAuthService.signup(
+      dto.email,
+      dto.password,
+      dto.name,
+      dto.phone,
+    );
   }
 
   @Post('login')
@@ -26,7 +38,10 @@ export class AuthAdminController {
   @ApiResponse({ status: 401, description: '인증 실패' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async login(@Body() dto: AdminLoginDto) {
-    const admin = await this.adminAuthService.validateUser(dto.email, dto.password);
+    const admin = await this.adminAuthService.validateUser(
+      dto.email,
+      dto.password,
+    );
     if (!admin) throw new UnauthorizedException('Invalid credentials');
     return this.adminAuthService.login(admin);
   }

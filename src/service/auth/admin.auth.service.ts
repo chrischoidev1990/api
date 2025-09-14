@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Admin } from '../model/admin.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { Admin } from '../../model/admin.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,9 +13,19 @@ export class AdminAuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(email: string, password: string, name: string, phone: string): Promise<Admin> {
+  async signup(
+    email: string,
+    password: string,
+    name: string,
+    phone: string,
+  ): Promise<Admin> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const admin = this.adminRepository.create({ email, password: hashedPassword, name, phone });
+    const admin = this.adminRepository.create({
+      email,
+      password: hashedPassword,
+      name,
+      phone,
+    });
     return this.adminRepository.save(admin);
   }
 

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Member } from '../model/member.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { Member } from '../../model/member.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,9 +13,19 @@ export class MemberAuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(email: string, password: string, name: string, phone: string): Promise<Member> {
+  async signup(
+    email: string,
+    password: string,
+    name: string,
+    phone: string,
+  ): Promise<Member> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const member = this.memberRepository.create({ email, password: hashedPassword, name, phone });
+    const member = this.memberRepository.create({
+      email,
+      password: hashedPassword,
+      name,
+      phone,
+    });
     return this.memberRepository.save(member);
   }
 
@@ -37,11 +47,4 @@ export class MemberAuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
-
-    async updateProfileImage(memberId: number, imageUrl: string): Promise<Member> {
-      const member = await this.memberRepository.findOne({ where: { id: memberId } });
-      if (!member) throw new Error('Member not found');
-      member.profile_image_url = imageUrl;
-      return this.memberRepository.save(member);
-    }
 }
