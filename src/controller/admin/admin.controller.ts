@@ -9,21 +9,23 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { FileMoveDto } from './dto/file-move.dto';
-import { Admin } from '../../model/admin.entity';
+import { Admin as AdminEntity } from '../../model/admin.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 // import { JwtService } from '@nestjs/jwt';
 import * as path from 'path';
 import { AdminId } from '../../auth/admin-id.decorator';
 import { FileService } from '../../service/file.service';
+import { AdminContextDto } from './dto/admin-context.dto';
+import { Admin as AdminDecorator, AdminContext } from '../../auth/admin-context.decorator';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
 @Controller('admin/admin')
 export class AdminController {
   constructor(
-    @InjectRepository(Admin)
-    private readonly adminRepository: Repository<Admin>,
+    @InjectRepository(AdminEntity)
+    private readonly adminRepository: Repository<AdminEntity>,
     private readonly fileService: FileService,
   ) {}
 
@@ -56,5 +58,19 @@ export class AdminController {
       await this.fileService.deleteFile(oldProfileImage);
     }
     return { path: destPath };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me')
+  @ApiOperation({ summary: '내 정보 조회' })
+  @ApiResponse({ status: 200, description: '관리자 컨텍스트 반환', type: AdminContextDto })
+  async getMe(@AdminDecorator() admin: AdminContext) {
+    // AdminContext 전체 정보 반환
+    return {
+      id: admin.id,
+      email: admin.email,
+      name: admin.name,
+      phone: admin.phone,
+    };
   }
 }

@@ -27,7 +27,12 @@ export class AdminAuthService {
   }
 
   async login(admin: Admin): Promise<{ access_token: string }> {
-    const payload = { sub: admin.id, email: admin.email };
+    const payload = {
+      id: admin.id,
+      email: admin.email,
+      name: admin.name,
+      phone: admin.phone,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };

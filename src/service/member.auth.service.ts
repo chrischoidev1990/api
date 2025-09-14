@@ -27,7 +27,12 @@ export class MemberAuthService {
   }
 
   async login(member: Member): Promise<{ access_token: string }> {
-    const payload = { sub: member.id, email: member.email };
+    const payload = {
+      id: member.id,
+      email: member.email,
+      name: member.name,
+      phone: member.phone,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
